@@ -1,27 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, Button, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { getAllListings } from '../controllers/ListingsDB';
 import { CurrentLocation } from '../controllers/LocationManager';
+import { ListingDetailsBox } from '../screens/components/ListingDetailsBox';
+import { CustomMarker } from '../screens/components/CustomMarker';
+
 import { getUser } from '../controllers/UsersDB';
 import { auth, db } from "../config/FirebaseApp";
 import { collection, getDocs, addDoc, doc, setDoc } from "firebase/firestore";
-
-const LISTING_COLLECTION = "Listing";
-
 
 const SearchScreen = ({ navigation }) => {
   const [userLocation, setUserLocation] = useState(null);
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedListing, setSelectedListing] = useState(null);
+  const [showListingDetails, setShowListingDetails] = useState(false); // State to control visibility of ListingDetailsBox
 
 
   useEffect(() => {
     // Fetch vehicles data
     fetchListingsData();
-
-
-
   }, []);
 
   const fetchListingsData = () => {
@@ -44,7 +43,7 @@ const SearchScreen = ({ navigation }) => {
     }
   
     return listings.map((listing) => (
-      <Marker
+      <CustomMarker
         key={listing.id}
         coordinate={{ latitude: listing.latitude, longitude: listing.longitude }}
         title={listing.price.toString()} // Ensure title is a string
@@ -54,17 +53,20 @@ const SearchScreen = ({ navigation }) => {
   };
   
   const handleMarkerPress = (listingID) => {
-    // Code to handle marker press, show summary of selected vehicle
-    // Example: navigation.navigate('VehicleDetails', { vehicle });
-    // try {
-    //   // Fetch listing details using the ID
-    //   const listingDetails = await fetchListingDetails(listingId);
-    //   // Show ListingSummary component with listing details
-    //   setShowListingSummary(true);
-    //   setListingDetails(listingDetails);
-    // } catch (error) {
-    //   console.error("Error fetching listing details:", error);
-    // }
+    // Find the listing with the matching ID
+    const selected = listings.find(listing => listing.id === listingID);
+    setSelectedListing(selected);
+    setShowListingDetails(true); // Show the ListingDetailsBox
+  };
+
+  const handleMapPress = () => {
+    setShowListingDetails(false); // Hide the ListingDetailsBox when user presses other region of the map
+  };
+
+  const handleBookingRequest = (selectedDate) => {
+    // Update the listing status to booked
+    // Perform any other necessary booking actions
+    console.log('Booking requested for:', selectedListing.id, 'on date:', selectedDate);
   };
 
   const handleLoadingComplete = () => {
@@ -82,6 +84,7 @@ const SearchScreen = ({ navigation }) => {
       ) : (
         <>
           {userLocation && (
+           <TouchableOpacity style={{ flex: 1 }} onPress={handleMapPress} activeOpacity={1}  >
             <MapView
               style={{ flex: 1 }}
               initialRegion={{
@@ -94,7 +97,14 @@ const SearchScreen = ({ navigation }) => {
             >
               {renderMarkers()}
             </MapView>
+           </TouchableOpacity>
           )}
+          
+          {/* Insert the following block */}
+            {showListingDetails && selectedListing && (
+              <ListingDetailsBox listing={selectedListing} onRequestBooking={handleBookingRequest}   userLocation={userLocation} />
+            )}
+          {/* End of inserted block */}
           {/* <View style={{ padding: 10 }}>
             <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>Listings:</Text>
             <FlatList
@@ -110,12 +120,13 @@ const SearchScreen = ({ navigation }) => {
         </>
       )}
 
-      <View style={{ position: 'absolute', bottom: 20, alignSelf: 'center' }}>
+      {/* <View style={{ position: 'absolute', bottom: 20, alignSelf: 'center' }}>
         <Button title="My Reservations" onPress={() => navigation.navigate('Reservations')} />
-      </View>
+      </View> */}
     </View>
   );
 };
+
 
 
 export default SearchScreen;
