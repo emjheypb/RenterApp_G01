@@ -1,7 +1,6 @@
 // renter@one.com - password
 // renter@two.com - password
 
-
 import {
     SafeAreaView,
     Text,
@@ -19,10 +18,10 @@ import {
       getUser(email, password, (user) => {
         if (user == null) {
           setError("Invalid Credentials");
-        } else if (user.type == "owner") {
+        } else if (user.type == "renter") {
           setError("");
           alert(`Login successful!`);
-          setCurrUser(user);
+          //setCurrUser(user);
           navigation.navigate("Home");
         } else {
           setError("Invalid Credentials");
@@ -33,7 +32,7 @@ import {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
-    const { setCurrUser } = useContext(UserContext);
+    //const { setCurrUser } = useContext(UserContext);
   
     return (
       <SafeAreaView style={[styles.content, { gap: 10 }]}>

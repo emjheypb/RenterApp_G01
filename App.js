@@ -1,27 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SearchScreen from './screens/SearchScreen';
 import ReservationsScreen from './screens/ReservationsScreen';
-import { UserContext } from './controllers/UsersDB';
-import { auth } from './config/FirebaseApp';
+import LoginScreen from "./screens/LoginScreen";
+import HomeScreen from "./screens/HomeScreen";
 
 const Stack = createNativeStackNavigator();
 
+const MyTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: "white",
+  },
+};
+
 const App = () => {
-  // const [user, setUser] = useState(null);
-
-  // useEffect(() => {
-  //   const unsubscribe = auth.onAuthStateChanged((user) => {
-  //     setUser(user);
-  //   });
-  //   return () => unsubscribe();
-  // }, []);
-
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="SearchScreen">
-        <Stack.Screen
+    <NavigationContainer theme={MyTheme}>
+        <Stack.Navigator>
+        {/* <Stack.Screen
           name="SearchScreen"
           component={SearchScreen}
           options={{ headerShown: false }}
@@ -30,8 +29,8 @@ const App = () => {
           name="ReservationsScreen"
           component={ReservationsScreen}
           options={{ headerShown: false }}
-        />
-          {/* <Stack.Screen
+        /> */}
+          <Stack.Screen
             name="Login"
             component={LoginScreen}
             options={{ headerShown: false }}
@@ -40,7 +39,7 @@ const App = () => {
             name="Home"
             component={HomeScreen}
             options={{ headerShown: false }}
-          /> */}
+          />
       </Stack.Navigator>
     </NavigationContainer>
   );
