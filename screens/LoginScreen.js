@@ -22,7 +22,7 @@ import {
         } else if (user.type == "owner") {
           setError("");
           alert(`Login successful!`);
-          setCurrUser(user);
+          //setCurrUser(user);
           navigation.navigate("Home");
         } else {
           setError("Invalid Credentials");
@@ -33,7 +33,7 @@ import {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
-    const { setCurrUser } = useContext(UserContext);
+    //const { setCurrUser } = useContext(UserContext);
   
     return (
       <SafeAreaView style={[styles.content, { gap: 10 }]}>

@@ -141,9 +141,9 @@ const SearchScreen = ({ navigation }) => {
         </>
       )}
 
-      <View style={{ position: 'absolute', bottom: 20, alignSelf: 'center' }}>
+      {/* <View style={{ position: 'absolute', bottom: 20, alignSelf: 'center' }}>
         <Button title="My Reservations" onPress={() => navigation.navigate(ReservationsScreen)} />
-      </View>
+      </View> */}
     </View>
   );
 };
