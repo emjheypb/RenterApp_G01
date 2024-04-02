@@ -10,6 +10,7 @@ import { addReservation } from '../controllers/ReservationsDB';
 import { getUser } from '../controllers/UsersDB';
 import { auth, db } from "../config/FirebaseApp";
 import { collection, getDocs, addDoc, doc, setDoc } from "firebase/firestore";
+import ReservationsScreen from './ReservationsScreen';
 
 const SearchScreen = ({ navigation }) => {
   const [userLocation, setUserLocation] = useState(null);
@@ -72,7 +73,11 @@ const SearchScreen = ({ navigation }) => {
         listingID: selectedListing.id,
         make: selectedListing.make,
         model: selectedListing.model,
+        image: selectedListing.image,
         price: selectedListing.price,
+        pickupLocation: selectedListing.location,
+        owner: selectedListing.ownerName,
+        ownerImage: selectedListing.ownerImage,
         renter: 'Vincenzo', // Assuming renter is hardcoded for now
         renterImage: 'https://firebasestorage.googleapis.com/v0/b/rent-an-ev-2fd04.appspot.com/o/vehicle_images%2Fnngh23-1613970086.jpg?alt=media&token=b07904bd-c8d9-4cba-bccb-e29e03e06093',
         status: 0 
@@ -136,9 +141,9 @@ const SearchScreen = ({ navigation }) => {
         </>
       )}
 
-      {/* <View style={{ position: 'absolute', bottom: 20, alignSelf: 'center' }}>
-        <Button title="My Reservations" onPress={() => navigation.navigate('Reservations')} />
-      </View> */}
+      <View style={{ position: 'absolute', bottom: 20, alignSelf: 'center' }}>
+        <Button title="My Reservations" onPress={() => navigation.navigate(ReservationsScreen)} />
+      </View>
     </View>
   );
 };

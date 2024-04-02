@@ -8,7 +8,8 @@ export const getReservationsForUser = async (_callback) => {
     const querySnapshot = await getDocs(collection(db, BOOKINGS_COLLECTION));
     const reservations = [];
     querySnapshot.forEach((doc) => {
-      if (doc.data().userId === auth.currentUser.uid) {
+      // if (doc.data().userId === auth.currentUser.uid) {
+        if (doc.data().renter === "Vincenzo") {
         // Filter reservations for the current user
         reservations.push({ id: doc.id, ...doc.data() });
       }
@@ -19,17 +20,6 @@ export const getReservationsForUser = async (_callback) => {
     _callback(null, err);
   }
 };
-
-// export const addReservationForUser = async (reservation, _callback) => {
-//   try {
-//     const addedReservation = await addDoc(collection(db, BOOKINGS_COLLECTION), reservation);
-//     console.log("addReservationForUser", addedReservation.id);
-//     _callback(null);
-//   } catch (err) {
-//     console.log("addReservationForUser", err);
-//     _callback(err);
-//   }
-// };
 
 export const addReservation = async (reservationData) => {
   try {
@@ -43,16 +33,17 @@ export const addReservation = async (reservationData) => {
   }
 };
 
-export const deleteReservationForUser = async (reservationId, _callback) => {
+export const deleteReservation = async (reservationId, _callback) => {
   try {
     await deleteDoc(doc(db, BOOKINGS_COLLECTION, reservationId));
-    console.log("deleteReservationForUser", reservationId);
-    _callback(null);
+    console.log("Reservation deleted successfully:", reservationId);
+    if (_callback) _callback(null); // Call the callback function if provided, passing null for success
   } catch (err) {
-    console.log("deleteReservationForUser", err);
-    _callback(err);
+    console.error("Error deleting reservation:", err);
+    if (_callback) _callback(err); // Call the callback function if provided, passing the error object
   }
 };
+
 
 export const editReservationForUser = async (reservationId, updatedReservation, _callback) => {
   try {
