@@ -1,7 +1,7 @@
 import { auth, db } from "../config/FirebaseApp";
 import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "firebase/firestore";
 
-const BOOKINGS_COLLECTION = "bookings";
+const BOOKINGS_COLLECTION = "Booking";
 
 export const getReservationsForUser = async (_callback) => {
   try {
@@ -20,14 +20,26 @@ export const getReservationsForUser = async (_callback) => {
   }
 };
 
-export const addReservationForUser = async (reservation, _callback) => {
+// export const addReservationForUser = async (reservation, _callback) => {
+//   try {
+//     const addedReservation = await addDoc(collection(db, BOOKINGS_COLLECTION), reservation);
+//     console.log("addReservationForUser", addedReservation.id);
+//     _callback(null);
+//   } catch (err) {
+//     console.log("addReservationForUser", err);
+//     _callback(err);
+//   }
+// };
+
+export const addReservation = async (reservationData) => {
   try {
-    const addedReservation = await addDoc(collection(db, BOOKINGS_COLLECTION), reservation);
-    console.log("addReservationForUser", addedReservation.id);
-    _callback(null);
-  } catch (err) {
-    console.log("addReservationForUser", err);
-    _callback(err);
+    // Add a new document with reservationData to the "bookings" collection
+    const docRef = await addDoc(collection(db,  BOOKINGS_COLLECTION), reservationData);
+    console.log("Reservation added with ID: ", docRef.id);
+    return docRef.id; // Return the ID of the newly added reservation
+  } catch (error) {
+    console.error("Error adding reservation: ", error);
+    throw error; // Throw the error for handling in the caller function
   }
 };
 

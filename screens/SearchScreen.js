@@ -5,6 +5,7 @@ import { getAllListings } from '../controllers/ListingsDB';
 import { CurrentLocation } from '../controllers/LocationManager';
 import { ListingDetailsBox } from '../screens/components/ListingDetailsBox';
 import { CustomMarker } from '../screens/components/CustomMarker';
+import { addReservation } from '../controllers/ReservationsDB';
 
 import { getUser } from '../controllers/UsersDB';
 import { auth, db } from "../config/FirebaseApp";
@@ -16,7 +17,6 @@ const SearchScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [selectedListing, setSelectedListing] = useState(null);
   const [showListingDetails, setShowListingDetails] = useState(false); // State to control visibility of ListingDetailsBox
-
 
   useEffect(() => {
     // Fetch vehicles data
@@ -63,10 +63,26 @@ const SearchScreen = ({ navigation }) => {
     setShowListingDetails(false); // Hide the ListingDetailsBox when user presses other region of the map
   };
 
-  const handleBookingRequest = (selectedDate) => {
-    // Update the listing status to booked
-    // Perform any other necessary booking actions
-    console.log('Booking requested for:', selectedListing.id, 'on date:', selectedDate);
+  const handleBookingRequest = async (selectedDate) => {
+    try {
+      // Construct the reservation data object
+      const reservationData = {
+        date: selectedDate,
+        licensePlate: selectedListing.licensePlate,
+        listingID: selectedListing.id,
+        make: selectedListing.make,
+        model: selectedListing.model,
+        price: selectedListing.price,
+        renter: 'Vincenzo', // Assuming renter is hardcoded for now
+        renterImage: 'https://firebasestorage.googleapis.com/v0/b/rent-an-ev-2fd04.appspot.com/o/vehicle_images%2Fnngh23-1613970086.jpg?alt=media&token=b07904bd-c8d9-4cba-bccb-e29e03e06093',
+        status: 0 
+      };
+       // Add the reservation to the database
+    const reservationId = await addReservation(reservationData);
+    console.log('Reservation requested for:', selectedListing.id, 'on date:', selectedDate, 'added with ID:', reservationId);
+    } catch (error) {
+      console.error('Error adding reservation:', error);
+    }
   };
 
   const handleLoadingComplete = () => {
