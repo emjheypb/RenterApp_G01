@@ -9,7 +9,7 @@ export const getReservationsForUser = async (_callback) => {
     const reservations = [];
     querySnapshot.forEach((doc) => {
       // if (doc.data().userId === auth.currentUser.uid) {
-        if (doc.data().renter === "Vincenzo") {
+        if (doc.data().renterID === auth.currentUser.email) {
         // Filter reservations for the current user
         reservations.push({ id: doc.id, ...doc.data() });
       }

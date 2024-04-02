@@ -1,7 +1,6 @@
 // renter@one.com - password
 // renter@two.com - password
 
-
 import {
     SafeAreaView,
     Text,
@@ -19,7 +18,7 @@ import {
       getUser(email, password, (user) => {
         if (user == null) {
           setError("Invalid Credentials");
-        } else if (user.type == "owner") {
+        } else if (user.type == "renter") {
           setError("");
           alert(`Login successful!`);
           //setCurrUser(user);

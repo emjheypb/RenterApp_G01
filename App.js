@@ -18,8 +18,8 @@ const MyTheme = {
 
 const App = () => {
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="SearchScreen">
+    <NavigationContainer theme={MyTheme}>
+        <Stack.Navigator>
         {/* <Stack.Screen
           name="SearchScreen"
           component={SearchScreen}

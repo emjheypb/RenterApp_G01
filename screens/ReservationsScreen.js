@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Image } from 'react-native';
 import { getReservationsForUser, deleteReservation } from '../controllers/ReservationsDB';
-import SearchScreen from './SearchScreen';
-import { createStackNavigator } from '@react-navigation/stack';
-import { navigate, navigation } from '@react-navigation/native';
 
 const ReservationsScreen = () => {
   const [reservations, setReservations] = useState([]);
@@ -19,6 +16,7 @@ const ReservationsScreen = () => {
         console.error('Error fetching reservations:', error);
       } else {
         setReservations(data);
+        console.log('Reservations: ', data)
       }
     });
   };
@@ -77,7 +75,7 @@ const ReservationsScreen = () => {
   return (
     <View style={{ flex: 1, paddingTop:100 }}>
       <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 10, justifyContent:'center', marginLeft:30 }}>My Reservations</Text>
-      {reservations.length > 0 ? (
+      {sortedReservations.length > 0 ? (
         <FlatList
           data={sortedReservations}
           style={styles.animeList}
