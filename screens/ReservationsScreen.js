@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, FlatList, TouchableOpacity, Image, Button } from 'react-native';
 import { getReservationsForUser, deleteReservation } from '../controllers/ReservationsDB';
+import { useFocusEffect } from '@react-navigation/native';
 
 const ReservationsScreen = () => {
   const [reservations, setReservations] = useState([]);
+  const sortedReservations = reservations.slice().sort((a, b) => a.date - b.date);
 
-  useEffect(() => {
+  useFocusEffect(() => {
     fetchReservations();
-  }, []);
+  });
 
   const fetchReservations = () => {
     // Assuming you have a function to fetch reservations for the current user
@@ -24,13 +26,13 @@ const ReservationsScreen = () => {
   const getStatusText = (status) => {
     switch (status) {
       case 0:
-        return 'Pending';
+        return { text: 'Pending', color: 'orange' }; // Orange color for pending
       case 1:
-        return 'Confirmed';
+        return { text: 'Confirmed', color: 'green' }; // Green color for confirmed
       case 2:
-        return 'Declined';
+        return { text: 'Declined', color: 'red' }; // Red color for declined
       default:
-        return 'Unknown';
+        return { text: 'Unknown', color: 'gray' }; // Gray color for unknown
     }
   };
   
@@ -41,18 +43,18 @@ const ReservationsScreen = () => {
       </View>
       <View style={styles.detailsContainer}>
         <Text style={styles.boldText}>{item.make} {item.model}</Text>
-        <Text>Booking Date: {item.date.toDate().toLocaleString()}</Text>
+        <Text>Date: {item.date.toDate().toLocaleString()}</Text>
         <Text>License Plate: {item.licensePlate}</Text>
-        <Text>Pickup Location: {item.location}</Text>
+        <Text>Location: {item.pickupLocation}</Text>
         <Text>Price: ${item.price}</Text>
         <View style={styles.renterContainer}>
           <Image source={{ uri: item.ownerImage }} style={styles.renterImageSmall} />
           <Text style={styles.renterName}>Owner:{'\n'}{item.owner}</Text>
         </View>
-        <Text>Status: {getStatusText(item.status)}</Text>
+        <Text style={{ color: getStatusText(item.status).color }}>Status: {getStatusText(item.status).text}</Text>
         {item.status === 1 && <Text>Booking Confirmation Code: {item.confirmationCode}</Text>}
       <TouchableOpacity onPress={() => deleteAndRefresh(item.id)}>
-        <Text style={{ color: 'red', marginTop: 5 }}>Delete Reservation</Text>
+        <Text style={{ backgroundColor: 'pink', marginTop: 5 }}>Delete Reservation</Text>
       </TouchableOpacity>
       </View>
     </View>
@@ -68,13 +70,9 @@ const ReservationsScreen = () => {
       console.error('Error deleting reservation:', error);
     }
   };
-  
 
-  const sortedReservations = reservations.slice().sort((a, b) => a.date - b.date);
-  
   return (
-    <View style={{ flex: 1, paddingTop:100 }}>
-      <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 10, justifyContent:'center', marginLeft:30 }}>My Reservations</Text>
+    <View style={{ flex: 1}}>
       {sortedReservations.length > 0 ? (
         <FlatList
           data={sortedReservations}
