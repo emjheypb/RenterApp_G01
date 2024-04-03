@@ -1,12 +1,17 @@
 import { auth, db } from "../config/FirebaseApp";
-import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc, onSnapshot,  query, where } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  deleteDoc,
+  doc,
+  updateDoc,
+  onSnapshot,
+  query,
+  where,
+} from "firebase/firestore";
 
 const BOOKINGS_COLLECTION = "Booking";
-
-export const unsubsribe = () => {
-  console.log("unsubscribe");
-  currSnapshot();
-};
 
 export const getReservationsForUser = (_callback) => {
   // Create a query to filter reservations for the current user
@@ -57,7 +62,10 @@ export const getReservationsForUser = (_callback) => {
 export const addReservation = async (reservationData) => {
   try {
     // Add a new document with reservationData to the "bookings" collection
-    const docRef = await addDoc(collection(db,  BOOKINGS_COLLECTION), reservationData);
+    const docRef = await addDoc(
+      collection(db, BOOKINGS_COLLECTION),
+      reservationData
+    );
     console.log("Reservation added with ID: ", docRef.id);
     return docRef.id; // Return the ID of the newly added reservation
   } catch (error) {
@@ -77,10 +85,16 @@ export const deleteReservation = async (reservationId, _callback) => {
   }
 };
 
-
-export const editReservationForUser = async (reservationId, updatedReservation, _callback) => {
+export const editReservationForUser = async (
+  reservationId,
+  updatedReservation,
+  _callback
+) => {
   try {
-    await updateDoc(doc(db, BOOKINGS_COLLECTION, reservationId), updatedReservation);
+    await updateDoc(
+      doc(db, BOOKINGS_COLLECTION, reservationId),
+      updatedReservation
+    );
     console.log("editReservationForUser", reservationId);
     _callback(null);
   } catch (err) {
