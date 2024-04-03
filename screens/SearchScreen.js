@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { View, Text, Button, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { getAllListings } from '../controllers/ListingsDB';
@@ -9,7 +9,8 @@ import { addReservation } from '../controllers/ReservationsDB';
 import { auth, db } from "../config/FirebaseApp";
 import { getUserDetails } from "../controllers/UsersDB";
 import { collection, getDocs, addDoc, doc, setDoc } from "firebase/firestore";
-import ReservationsScreen from './ReservationsScreen';
+import { useFocusEffect } from '@react-navigation/native';
+
 
 const SearchScreen = ({ navigation }) => {
   const [userLocation, setUserLocation] = useState(null);
@@ -18,10 +19,16 @@ const SearchScreen = ({ navigation }) => {
   const [selectedListing, setSelectedListing] = useState(null);
   const [showListingDetails, setShowListingDetails] = useState(false); // State to control visibility of ListingDetailsBox
 
-  useEffect(() => {
-    // Fetch vehicles data
-    fetchListingsData();
-  }, []);
+  // useEffect(() => {
+  //   // Fetch vehicles data
+  //   fetchListingsData();
+  // }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchListingsData();
+    }, [])
+  );
 
   const fetchListingsData = () => {
     getAllListings((data, error) => {
@@ -33,9 +40,25 @@ const SearchScreen = ({ navigation }) => {
     });
   };
   
-  const renderMarkers = () => {
-    console.log('Listings:', listings); // Log the listings array
+  // const renderMarkers = () => {
+  //   console.log('Success fetching listings. Number of listings:', listings.length);  
+  //   // Check if listings is an array
+  //   if (!Array.isArray(listings)) {
+  //     console.error('Listings data is not an array.');
+  //     return null;
+  //   }
   
+  //   return listings.map((listing) => (
+  //     <CustomMarker
+  //       key={listing.id}
+  //       coordinate={{ latitude: listing.latitude, longitude: listing.longitude }}
+  //       title={listing.price.toString()} // Ensure title is a string
+  //       onPress={() => handleMarkerPress(listing.id)}
+  //     />
+  //   ));
+  // };
+  const renderMarkers = useMemo(() => {
+    console.log('Success fetching listings. Number of listings:', listings.length);  
     // Check if listings is an array
     if (!Array.isArray(listings)) {
       console.error('Listings data is not an array.');
@@ -50,7 +73,7 @@ const SearchScreen = ({ navigation }) => {
         onPress={() => handleMarkerPress(listing.id)}
       />
     ));
-  };
+  }, [listings]); // Only recompute when listings change
   
   const handleMarkerPress = (listingID) => {
     // Find the listing with the matching ID
@@ -126,16 +149,17 @@ const SearchScreen = ({ navigation }) => {
               }}
               onLayout={handleLoadingComplete} // Call handleLoadingComplete when MapView layout is complete
             >
-              {renderMarkers()}
+              {renderMarkers}
             </MapView>
            </TouchableOpacity>
           )}
           
-          {/* Insert the following block */}
+          {/* ListingDetails */}
             {showListingDetails && selectedListing && (
               <ListingDetailsBox listing={selectedListing} onRequestBooking={handleBookingRequest}   userLocation={userLocation} />
             )}
-          {/* End of inserted block */}
+
+          {/* List View */}
           {/* <View style={{ padding: 10 }}>
             <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>Listings:</Text>
             <FlatList
@@ -150,10 +174,6 @@ const SearchScreen = ({ navigation }) => {
           </View> */}
         </>
       )}
-
-      {/* <View style={{ position: 'absolute', bottom: 20, alignSelf: 'center' }}>
-        <Button title="My Reservations" onPress={() => navigation.navigate(ReservationsScreen)} />
-      </View> */}
     </View>
   );
 };

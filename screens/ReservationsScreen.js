@@ -7,9 +7,11 @@ const ReservationsScreen = () => {
   const [reservations, setReservations] = useState([]);
   const sortedReservations = reservations.slice().sort((a, b) => a.date - b.date);
 
-  useFocusEffect(() => {
-    fetchReservations();
-  });
+  useFocusEffect(
+    useCallback(() => {
+      fetchReservations();
+    }, [])
+  );
 
   const fetchReservations = () => {
     // Assuming you have a function to fetch reservations for the current user
@@ -18,7 +20,7 @@ const ReservationsScreen = () => {
         console.error('Error fetching reservations:', error);
       } else {
         setReservations(data);
-        console.log('Reservations: ', data)
+        console.log('Reservations: ', data.length)
       }
     });
   };
