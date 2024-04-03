@@ -2,9 +2,11 @@ import React, { useState, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Image } from 'react-native';
 import { getReservationsForUser, deleteReservation } from '../controllers/ReservationsDB';
 import { useFocusEffect } from '@react-navigation/native';
+import SegmentedControl from "@react-native-segmented-control/segmented-control";
 
 const ReservationsScreen = () => {
   const [reservations, setReservations] = useState([]);
+  const [statusFilterIndex, setStatusFilterIndex] = useState(0); // State for the selected status filter index
   const sortedReservations = reservations.slice().sort((a, b) => a.date - b.date);
 
   useFocusEffect(
@@ -54,7 +56,7 @@ const ReservationsScreen = () => {
           <Text style={styles.renterName}>Owner:{'\n'}{item.owner}</Text>
         </View>
         <Text style={{ color: 'white', backgroundColor: getStatusText(item.status).color }}>Status: {getStatusText(item.status).text}</Text>
-        {item.status === 1 && <Text>Booking Confirmation Code:{'\n'}{item.confirmationCode}</Text>}
+        {item.status === 1 && <Text style={styles.confirmCode}>Booking Confirmation Code:{'\n'}{item.confirmationCode}</Text>}
       <TouchableOpacity onPress={() => deleteAndRefresh(item.id)} style={styles.button}>
         <Text style={styles.buttonText}>Delete Reservation</Text>
       </TouchableOpacity>
@@ -75,10 +77,14 @@ const ReservationsScreen = () => {
 
   return (
     <View style={{ flex: 1}}>
-      {sortedReservations.length > 0 ? (
+      <SegmentedControl
+        values={['Pending', 'Confirmed', 'Declined']} // Segment titles
+        selectedIndex={statusFilterIndex} // Selected segment index
+        onChange={(event) => setStatusFilterIndex(event.nativeEvent.selectedSegmentIndex)} // Handle segment change
+      />
+      {sortedReservations.filter(item => item.status === statusFilterIndex).length > 0 ? (
         <FlatList
-          data={sortedReservations}
-          style={styles.animeList}
+          data={sortedReservations.filter(item => item.status === statusFilterIndex)} // Apply filtering
           renderItem={renderItem}
           keyExtractor={(item) => item.id.toString()}
         />
@@ -113,6 +119,10 @@ const styles = {
   },
   boldText: {
     fontWeight: 'bold',
+  },
+  confirmCode: {
+    fontWeight: 'bold',
+    color: 'green',
   },
   renterImage: {
     width: 100,
