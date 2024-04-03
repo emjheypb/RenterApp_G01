@@ -1,15 +1,14 @@
-import React, { useState, useCallback, useMemo } from 'react';
-import { View, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
-import { getAllListings } from '../controllers/ListingsDB';
-import { CurrentLocation } from '../controllers/LocationManager';
-import { ListingDetailsBox } from '../screens/components/ListingDetailsBox';
-import { CustomMarker } from '../screens/components/CustomMarker';
-import { addReservation } from '../controllers/ReservationsDB';
+import React, { useState, useCallback, useMemo } from "react";
+import { View, Text, ActivityIndicator, TouchableOpacity } from "react-native";
+import MapView, { Marker } from "react-native-maps";
+import { getAllListings } from "../controllers/ListingsDB";
+import { CurrentLocation } from "../controllers/LocationManager";
+import { ListingDetailsBox } from "../screens/components/ListingDetailsBox";
+import { CustomMarker } from "../screens/components/CustomMarker";
+import { addReservation } from "../controllers/ReservationsDB";
 import { auth } from "../config/FirebaseApp";
 import { getUserDetails } from "../controllers/UsersDB";
-import { useFocusEffect } from '@react-navigation/native';
-
+import { useFocusEffect } from "@react-navigation/native";
 
 const SearchScreen = ({ navigation }) => {
   const [userLocation, setUserLocation] = useState(null);
@@ -32,21 +31,21 @@ const SearchScreen = ({ navigation }) => {
   const fetchListingsData = () => {
     getAllListings((data, error) => {
       if (error) {
-        console.error('Error fetching vehicles:', error);
+        console.error("Error fetching vehicles:", error);
       } else {
         setListings(data);
       }
     });
   };
-  
+
   // const renderMarkers = () => {
-  //   console.log('Success fetching listings. Number of listings:', listings.length);  
+  //   console.log('Success fetching listings. Number of listings:', listings.length);
   //   // Check if listings is an array
   //   if (!Array.isArray(listings)) {
   //     console.error('Listings data is not an array.');
   //     return null;
   //   }
-  
+
   //   return listings.map((listing) => (
   //     <CustomMarker
   //       key={listing.id}
@@ -57,26 +56,36 @@ const SearchScreen = ({ navigation }) => {
   //   ));
   // };
   const renderMarkers = useMemo(() => {
-    console.log('Success of connecting DB. Number of listings fetched:', listings.length);  
+    console.log(
+      "Success of connecting DB. Number of listings fetched:",
+      listings.length
+    );
     // Check if listings is an array
     if (!Array.isArray(listings)) {
-      console.error('Listings data is not an array.');
+      console.error("Listings data is not an array.");
       return null;
     }
-  
-    return listings.map((listing) => (
-      <CustomMarker
-        key={listing.id}
-        coordinate={{ latitude: listing.latitude, longitude: listing.longitude }}
-        title={listing.price.toString()} // Ensure title is a string
-        onPress={() => handleMarkerPress(listing.id)}
-      />
-    ));
+
+    return listings
+      .filter((listing) => {
+        return listing.status === 1;
+      })
+      .map((listing) => (
+        <CustomMarker
+          key={listing.id}
+          coordinate={{
+            latitude: listing.latitude,
+            longitude: listing.longitude,
+          }}
+          title={listing.price.toString()} // Ensure title is a string
+          onPress={() => handleMarkerPress(listing.id)}
+        />
+      ));
   }, [listings]); // Only recompute when listings change
-  
+
   const handleMarkerPress = (listingID) => {
     // Find the listing with the matching ID
-    const selected = listings.find(listing => listing.id === listingID);
+    const selected = listings.find((listing) => listing.id === listingID);
     setSelectedListing(selected);
     setShowListingDetails(true); // Show the ListingDetailsBox
   };
@@ -104,59 +113,74 @@ const SearchScreen = ({ navigation }) => {
             ownerID: selectedListing.ownerEmail,
             owner: selectedListing.ownerName,
             ownerImage: selectedListing.ownerImage,
-            renterID: currentUserEmail, 
-            renter: userData.name, 
-            renterImage: userData.image, 
-            status: 0 
+            renterID: currentUserEmail,
+            renter: userData.name,
+            renterImage: userData.image,
+            status: 0,
           };
-  
+
           // Add the reservation to the database
           const reservationId = await addReservation(reservationData);
-          console.log('Reservation requested for:', selectedListing.id, 'on date:', selectedDate, 'added with ID:', reservationId);
+          console.log(
+            "Reservation requested for:",
+            selectedListing.id,
+            "on date:",
+            selectedDate,
+            "added with ID:",
+            reservationId
+          );
         } else {
-          console.error('Error: User details not found');
+          console.error("Error: User details not found");
         }
       });
     } catch (error) {
-      console.error('Error adding reservation:', error);
+      console.error("Error adding reservation:", error);
     }
   };
 
   const handleLoadingComplete = () => {
     setLoading(false);
   };
-  
+
   return (
     <View style={{ flex: 1 }}>
       <CurrentLocation setUserLocation={setUserLocation} />
       {loading && !userLocation ? (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
           <ActivityIndicator size="large" color="blue" />
           <Text>Loading...</Text>
         </View>
       ) : (
         <>
           {userLocation && (
-           <TouchableOpacity style={{ flex: 1 }} onPress={handleMapPress} activeOpacity={1}  >
-            <MapView
+            <TouchableOpacity
               style={{ flex: 1 }}
-              initialRegion={{
-                latitude: userLocation.latitude,
-                longitude: userLocation.longitude,
-                latitudeDelta: 0.0922,
-                longitudeDelta: 0.0421,
-              }}
-              onLayout={handleLoadingComplete} // Call handleLoadingComplete when MapView layout is complete
-            >
-              {renderMarkers}
-            </MapView>
-           </TouchableOpacity>
+              onPress={handleMapPress}
+              activeOpacity={1}>
+              <MapView
+                style={{ flex: 1 }}
+                initialRegion={{
+                  latitude: userLocation.latitude,
+                  longitude: userLocation.longitude,
+                  latitudeDelta: 0.0922,
+                  longitudeDelta: 0.0421,
+                }}
+                onLayout={handleLoadingComplete} // Call handleLoadingComplete when MapView layout is complete
+              >
+                {renderMarkers}
+              </MapView>
+            </TouchableOpacity>
           )}
-          
+
           {/* ListingDetails */}
-            {showListingDetails && selectedListing && (
-              <ListingDetailsBox listing={selectedListing} onRequestBooking={handleBookingRequest}   userLocation={userLocation} />
-            )}
+          {showListingDetails && selectedListing && (
+            <ListingDetailsBox
+              listing={selectedListing}
+              onRequestBooking={handleBookingRequest}
+              userLocation={userLocation}
+            />
+          )}
 
           {/* List View */}
           {/* <View style={{ padding: 10 }}>
@@ -176,7 +200,5 @@ const SearchScreen = ({ navigation }) => {
     </View>
   );
 };
-
-
 
 export default SearchScreen;
