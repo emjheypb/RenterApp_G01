@@ -51,10 +51,10 @@ const ReservationsScreen = () => {
           <Image source={{ uri: item.ownerImage }} style={styles.renterImageSmall} />
           <Text style={styles.renterName}>Owner:{'\n'}{item.owner}</Text>
         </View>
-        <Text style={{ color: getStatusText(item.status).color }}>Status: {getStatusText(item.status).text}</Text>
-        {item.status === 1 && <Text>Booking Confirmation Code: {item.confirmationCode}</Text>}
-      <TouchableOpacity onPress={() => deleteAndRefresh(item.id)}>
-        <Text style={{ backgroundColor: 'pink', marginTop: 5 }}>Delete Reservation</Text>
+        <Text style={{ color: 'white', backgroundColor: getStatusText(item.status).color }}>Status: {getStatusText(item.status).text}</Text>
+        {item.status === 1 && <Text>Booking Confirmation Code:{'\n'}{item.confirmationCode}</Text>}
+      <TouchableOpacity onPress={() => deleteAndRefresh(item.id)} style={styles.button}>
+        <Text style={styles.buttonText}>Delete Reservation</Text>
       </TouchableOpacity>
       </View>
     </View>
@@ -125,5 +125,17 @@ const styles = {
   },
   renterName: {
     fontSize: 16,
+  },
+  button: {
+    backgroundColor: 'palevioletred',
+    marginTop: 5,
+    paddingVertical: 10,
+    alignItems: 'center',
+    borderRadius:5,
+    borderWidth:1,
+  },
+  buttonText: {
+    fontWeight: 'bold',
+    color: 'seashell', 
   },
 };
