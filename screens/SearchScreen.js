@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, Button, FlatList, ActivityIndicator, TouchableOpacity, TextInput } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { getAllListings } from '../controllers/ListingsDB';
-import { CurrentLocation } from '../controllers/LocationManager';
+import { CurrentLocation, doForwardGeocode } from '../controllers/LocationManager';
 import { ListingDetailsBox } from '../screens/components/ListingDetailsBox';
 import { CustomMarker } from '../screens/components/CustomMarker';
 import { addReservation } from '../controllers/ReservationsDB';
@@ -17,6 +17,7 @@ const SearchScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [selectedListing, setSelectedListing] = useState(null);
   const [showListingDetails, setShowListingDetails] = useState(false); // State to control visibility of ListingDetailsBox
+  const [address, setAddress] = useState('');
 
   useEffect(() => {
     // Fetch vehicles data
@@ -29,6 +30,31 @@ const SearchScreen = ({ navigation }) => {
         console.error('Error fetching vehicles:', error);
       } else {
         setListings(data);
+      }
+    });
+  };
+
+  const handleAddressChange = (text) => {
+    setAddress(text);
+  };
+
+  // Function to handle search button press
+  const handleSearch = () => {
+    console.log('Searching for address:', address);
+
+    // Perform forward geocoding
+    doForwardGeocode(address, (location, error) => {
+      if (error) {
+        console.error('Error performing forward geocoding:', error);
+        // Handle error, e.g., display an error message
+      } else {
+        console.log('Geocoded location:', location);
+
+        // Update userLocation state with the geocoded location
+        setUserLocation({
+          latitude: location.latitude,
+          longitude: location.longitude,
+        });
       }
     });
   };
@@ -106,6 +132,20 @@ const SearchScreen = ({ navigation }) => {
   
   return (
     <View style={{ flex: 1 }}>
+      {/* Search bar */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingTop: 10 }}>
+        <TextInput
+          style={{ flex: 1, height: 40, borderColor: 'gray', borderWidth: 1, marginRight: 10 }}
+          value={address}
+          onChangeText={handleAddressChange}
+          placeholder="Enter address"
+        />
+        <TouchableOpacity onPress={handleSearch} style={{ padding: 10, backgroundColor: 'blue', borderRadius: 5 }}>
+          <Text style={{ color: 'white' }}>Search</Text>
+        </TouchableOpacity>
+      </View>
+      
+      {/* MapView */}
       <CurrentLocation setUserLocation={setUserLocation} />
       {loading && !userLocation ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -131,11 +171,11 @@ const SearchScreen = ({ navigation }) => {
            </TouchableOpacity>
           )}
           
-          {/* Insert the following block */}
+          {/* ListingDetailsBox */}
             {showListingDetails && selectedListing && (
               <ListingDetailsBox listing={selectedListing} onRequestBooking={handleBookingRequest}   userLocation={userLocation} />
             )}
-          {/* End of inserted block */}
+
           {/* <View style={{ padding: 10 }}>
             <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>Listings:</Text>
             <FlatList
