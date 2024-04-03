@@ -34,8 +34,7 @@ const SearchScreen = ({ navigation }) => {
   };
   
   const renderMarkers = () => {
-    console.log('Listings:', listings); // Log the listings array
-  
+    console.log('Success fetching listings. Number of listings:', listings.length);  
     // Check if listings is an array
     if (!Array.isArray(listings)) {
       console.error('Listings data is not an array.');
