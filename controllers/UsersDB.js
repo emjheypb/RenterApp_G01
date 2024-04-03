@@ -1,4 +1,3 @@
-import { createContext, useState } from "react";
 import { auth, db } from "../config/FirebaseApp";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
@@ -30,7 +29,7 @@ export const getUser = async (username, password) => {
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
-        console.log("getUser", "Document data:", docSnap.data());
+        console.log("Success of Log-in, getUser data:", docSnap.data());
         return docSnap.data();
       } else {
         console.log("getUser", "No such document!");

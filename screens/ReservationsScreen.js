@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, Button } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, FlatList, TouchableOpacity, Image } from 'react-native';
 import { getReservationsForUser, deleteReservation } from '../controllers/ReservationsDB';
 import { useFocusEffect } from '@react-navigation/native';
 
