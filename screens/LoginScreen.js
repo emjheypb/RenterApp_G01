@@ -2,6 +2,7 @@
 // renter@two.com - password
 
 import {
+    View,
     SafeAreaView,
     Text,
     StyleSheet,
@@ -14,25 +15,27 @@ import {
   import { Colors } from "react-native/Libraries/NewAppScreen";
   
   const LoginScreen = ({ navigation }) => {
-    const toHome = () => {
-      getUser(email, password, (user) => {
-        if (user == null) {
-          setError("Invalid Credentials");
-        } else if (user.type == "renter") {
-          setError("");
-          alert(`Login successful!`);
-          //setCurrUser(user);
-          navigation.navigate("Home");
-        } else {
-          setError("Invalid Credentials");
-        }
-      });
-    };
-  
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
+    const [error, setError] = useState(false);
     //const { setCurrUser } = useContext(UserContext);
+    
+    const toHome = async () => {
+      try {
+        const user = await getUser(email, password);
+        
+        if (user && user.type === "renter") {
+          setError(false);
+          alert(`Login successful!`);
+          navigation.navigate("Home");
+        } else {
+          setError(true);
+        }
+      } catch (error) {
+        console.error("Error logging in:", error);
+        setError(true);
+      }
+    };
   
     return (
       <SafeAreaView style={[styles.content, { gap: 10 }]}>
@@ -40,19 +43,25 @@ import {
           style={styles.tb}
           placeholder="Email"
           value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
+          onChangeText={(text) => {
+            setEmail(text);
+            setError(false); // Clear error when typing
+          }}          autoCapitalize="none"
         />
         <TextInput
           style={styles.tb}
           placeholder="Password"
           value={password}
-          onChangeText={setPassword}
-          autoCapitalize="none"
+          onChangeText={(text) => {
+            setPassword(text);
+            setError(false); // Clear error when typing
+          }}          autoCapitalize="none"
           secureTextEntry
         />
-        <Text style={styles.errorStyle}>{error}</Text>
-        <TouchableOpacity style={styles.button} onPress={toHome}>
+        {error && ( // Display error text only when error is true
+      <Text style={styles.errorStyle}>Invalid Credentials</Text>
+       )}
+      <TouchableOpacity style={styles.button} onPress={toHome}>
           <Text style={{ fontWeight: "bold", color: "white" }}>L O G I N</Text>
         </TouchableOpacity>
         {/* <TouchableOpacity style={styles.button} onPress={addUsers}>
