@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { getUserDetails, logOutUser } from "../controllers/UsersDB";
 import { Image } from "react-native";
 import { auth } from "../config/FirebaseApp";
+import { unsubsribe } from "../controllers/ReservationsDB";
 import SearchScreen from "./SearchScreen";
 import ReservationsScreen from "./ReservationsScreen";
   
@@ -45,6 +46,7 @@ import ReservationsScreen from "./ReservationsScreen";
           <DrawerItem
             label="Logout"
             onPress={() => {
+              unsubsribe();
               setCurrUser(null);
               logOutUser();
               props.navigation.popToTop();

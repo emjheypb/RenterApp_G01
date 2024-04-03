@@ -1,25 +1,58 @@
 import { auth, db } from "../config/FirebaseApp";
-import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "firebase/firestore";
+import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc, onSnapshot,  query, where } from "firebase/firestore";
 
 const BOOKINGS_COLLECTION = "Booking";
 
-export const getReservationsForUser = async (_callback) => {
-  try {
-    const querySnapshot = await getDocs(collection(db, BOOKINGS_COLLECTION));
-    const reservations = [];
-    querySnapshot.forEach((doc) => {
-      // if (doc.data().userId === auth.currentUser.uid) {
-        if (doc.data().renterID === auth.currentUser.email) {
-        // Filter reservations for the current user
-        reservations.push({ id: doc.id, ...doc.data() });
-      }
-    });
-    _callback(reservations, null);
-  } catch (err) {
-    console.log("getReservationsForUser", err);
-    _callback(null, err);
-  }
+export const unsubsribe = () => {
+  console.log("unsubscribe");
+  currSnapshot();
 };
+
+export const getReservationsForUser = (_callback) => {
+  // Create a query to filter reservations for the current user
+  const reservationsQuery = query(
+    collection(db, BOOKINGS_COLLECTION),
+    where("renterID", "==", auth.currentUser.email)
+  );
+
+  // Subscribe to real-time updates using onSnapshot
+  const unsubscribe = onSnapshot(reservationsQuery, (querySnapshot) => {
+    try {
+      const reservations = [];
+      querySnapshot.forEach((doc) => {
+        // Construct the reservation object and push it into the reservations array
+        reservations.push({ id: doc.id, ...doc.data() });
+      });
+      // Invoke the callback function with the reservations data
+      _callback(reservations, null);
+    } catch (err) {
+      // Handle any errors that occur during data processing
+      console.log("Error processing reservations data:", err);
+      _callback(null, err);
+    }
+  });
+
+  // Return the unsubscribe function
+  return unsubscribe;
+};
+
+// export const getReservationsForUser = async (_callback) => {
+//   try {
+//     const querySnapshot = await getDocs(collection(db, BOOKINGS_COLLECTION));
+//     const reservations = [];
+//     querySnapshot.forEach((doc) => {
+//       // if (doc.data().userId === auth.currentUser.uid) {
+//         if (doc.data().renterID === auth.currentUser.email) {
+//         // Filter reservations for the current user
+//         reservations.push({ id: doc.id, ...doc.data() });
+//       }
+//     });
+//     _callback(reservations, null);
+//   } catch (err) {
+//     console.log("getReservationsForUser", err);
+//     _callback(null, err);
+//   }
+// };
 
 export const addReservation = async (reservationData) => {
   try {
