@@ -16,30 +16,33 @@ export const UserProvider = (props) => {
   );
 };*/
 
-export const getUser = async (username, password, _callback) => {
+export const getUser = async (username, password) => {
   try {
     const userCredential = await signInWithEmailAndPassword(
       auth,
       username,
       password
     );
+    const user = userCredential.user;
+
     try {
       const docRef = doc(db, USERS_COLLECTION, username);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
-        // console.log("getUser", "Document data:", docSnap.data());
-        _callback(docSnap.data());
+        console.log("getUser", "Document data:", docSnap.data());
+        return docSnap.data();
       } else {
         console.log("getUser", "No such document!");
+        return null;
       }
     } catch (err) {
       console.log("getUser", err);
+      return null;
     }
-    _callback(auth.currentUser);
   } catch (err) {
-    _callback(null);
     console.log("getUser", err);
+    return null;
   }
 };
 
