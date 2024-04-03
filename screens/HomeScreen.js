@@ -4,8 +4,8 @@ import {
   DrawerItemList,
   DrawerItem,
 } from "@react-navigation/drawer";
-import { useContext, useEffect, useState } from "react";
-import { UserContext, getUserDetails, logOutUser } from "../controllers/UsersDB";
+import { useEffect, useState } from "react";
+import { getUserDetails, logOutUser } from "../controllers/UsersDB";
 import { Image } from "react-native";
 import { auth } from "../config/FirebaseApp";
 import SearchScreen from "./SearchScreen";
@@ -46,6 +46,7 @@ import ReservationsScreen from "./ReservationsScreen";
             label="Logout"
             onPress={() => {
               setCurrUser(null);
+              logOutUser();
               props.navigation.popToTop();
             }}
           />

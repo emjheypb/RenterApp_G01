@@ -1,14 +1,13 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { View, Text, Button, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
+import React, { useState, useCallback, useMemo } from 'react';
+import { View, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { getAllListings } from '../controllers/ListingsDB';
 import { CurrentLocation } from '../controllers/LocationManager';
 import { ListingDetailsBox } from '../screens/components/ListingDetailsBox';
 import { CustomMarker } from '../screens/components/CustomMarker';
 import { addReservation } from '../controllers/ReservationsDB';
-import { auth, db } from "../config/FirebaseApp";
+import { auth } from "../config/FirebaseApp";
 import { getUserDetails } from "../controllers/UsersDB";
-import { collection, getDocs, addDoc, doc, setDoc } from "firebase/firestore";
 import { useFocusEffect } from '@react-navigation/native';
 
 
@@ -58,7 +57,7 @@ const SearchScreen = ({ navigation }) => {
   //   ));
   // };
   const renderMarkers = useMemo(() => {
-    console.log('Success fetching listings. Number of listings:', listings.length);  
+    console.log('Success of connecting DB. Number of listings fetched:', listings.length);  
     // Check if listings is an array
     if (!Array.isArray(listings)) {
       console.error('Listings data is not an array.');
