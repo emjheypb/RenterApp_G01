@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Image, Button, TouchableOpacity, Linking } from 'react-native';
+import { View, Text, Image, Button, TouchableOpacity, Linking, Alert } from 'react-native';
 import { getDistance } from 'geolib';
 
 export const ListingDetailsBox = ({ listing, onRequestBooking, userLocation }) => {
@@ -8,7 +8,15 @@ export const ListingDetailsBox = ({ listing, onRequestBooking, userLocation }) =
     // Generate a random future date
     const today = new Date();
     const randomFutureDate = new Date(today.getTime() + Math.random() * 30 * 24 * 60 * 60 * 1000); // Random date within 30 days
-    onRequestBooking(randomFutureDate);
+    // Show confirmation alert
+    Alert.alert(
+      'Confirm Booking',
+      `Are you sure you want to book this listing for ${randomFutureDate.toLocaleString()}?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Confirm', onPress: () => onRequestBooking(randomFutureDate) }
+      ]
+    );
   };
 
   const handleLocationPress = () => {

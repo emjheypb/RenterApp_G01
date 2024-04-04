@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image } from 'react-native';
-import { getReservationsForUser, deleteReservation } from '../controllers/ReservationsDB';
+import { View, Text, FlatList, TouchableOpacity, Image, Alert } from 'react-native';
+import { getReservationsForUser, deleteReservation, editReservationForUser } from '../controllers/ReservationsDB';
 import { useFocusEffect } from '@react-navigation/native';
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
 
@@ -35,6 +35,8 @@ const ReservationsScreen = () => {
         return { text: 'Confirmed', color: 'green' }; // Green color for confirmed
       case 2:
         return { text: 'Declined', color: 'red' }; // Red color for declined
+      case 3:
+        return { text: 'Cancelled', color: 'gray' }; // Gray color for cancelled
       default:
         return { text: 'Unknown', color: 'gray' }; // Gray color for unknown
     }
@@ -57,28 +59,57 @@ const ReservationsScreen = () => {
         </View>
         <Text style={{ color: 'white', backgroundColor: getStatusText(item.status).color }}>Status: {getStatusText(item.status).text}</Text>
         {item.status === 1 && <Text style={styles.confirmCode}>Booking Confirmation Code:{'\n'}{item.confirmationCode}</Text>}
-      <TouchableOpacity onPress={() => deleteAndRefresh(item.id)} style={styles.button}>
-        <Text style={styles.buttonText}>Delete Reservation</Text>
-      </TouchableOpacity>
+        {item.status !== 3 && ( // Render button if status is not 3 (cancelled)
+        <TouchableOpacity onPress={() => deleteReservationAlert(item.id)} style={styles.button}>
+          <Text style={styles.buttonText}>Delete Reservation</Text>
+        </TouchableOpacity>
+      )}
       </View>
     </View>
   );
 
-  const deleteAndRefresh = async (reservationId) => {
+  const deleteReservationAlert = (reservationId) => {
+    Alert.alert(
+      'Confirm Deletion',
+      'Are you sure you want to cancel this reservation?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Confirm',
+          onPress: () => cancelReservation(reservationId),
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
+  const cancelReservation = async (reservationId) => {
     try {
-      // Call deleteReservation function from ReservationsDB
-      await deleteReservation(reservationId);
-      // Refresh reservations after deletion
-      fetchReservations();
+      await editReservationForUser(reservationId, { status: 3 }); // Update status to 3 (Cancelled)
+      fetchReservations(); // Refresh reservations after cancellation
     } catch (error) {
-      console.error('Error deleting reservation:', error);
+      console.error('Error cancelling reservation:', error);
     }
   };
+
+  // const deleteAndRefresh = async (reservationId) => {
+  //   try {
+  //     // Call deleteReservation function from ReservationsDB
+  //     await deleteReservation(reservationId);
+  //     // Refresh reservations after deletion
+  //     fetchReservations();
+  //   } catch (error) {
+  //     console.error('Error deleting reservation:', error);
+  //   }
+  // };
 
   return (
     <View style={{ flex: 1}}>
       <SegmentedControl
-        values={['Pending', 'Confirmed', 'Declined']} // Segment titles
+        values={['Pending', 'Confirmed', 'Declined', 'Cancelled']} // Segment titles including 'Cancelled'
         selectedIndex={statusFilterIndex} // Selected segment index
         onChange={(event) => setStatusFilterIndex(event.nativeEvent.selectedSegmentIndex)} // Handle segment change
       />

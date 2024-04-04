@@ -85,20 +85,31 @@ export const deleteReservation = async (reservationId, _callback) => {
   }
 };
 
-export const editReservationForUser = async (
-  reservationId,
-  updatedReservation,
-  _callback
-) => {
+// export const editReservationForUser = async (
+//   reservationId,
+//   updatedReservation,
+//   _callback
+// ) => {
+//   try {
+//     await updateDoc(
+//       doc(db, BOOKINGS_COLLECTION, reservationId),
+//       updatedReservation
+//     );
+//     console.log("editReservationForUser", reservationId);
+//     _callback(null);
+//   } catch (err) {
+//     console.log("editReservationForUser", err);
+//     _callback(err);
+//   }
+// };
+
+export const editReservationForUser = async (reservationId, updatedReservation, _callback) => {
   try {
-    await updateDoc(
-      doc(db, BOOKINGS_COLLECTION, reservationId),
-      updatedReservation
-    );
+    await updateDoc(doc(db, BOOKINGS_COLLECTION, reservationId), updatedReservation);
     console.log("editReservationForUser", reservationId);
-    _callback(null);
+    if (_callback) _callback(null); // Invoke callback with null for success
   } catch (err) {
     console.log("editReservationForUser", err);
-    _callback(err);
+    if (_callback) _callback(err); // Invoke callback with error if an error occurs
   }
 };
